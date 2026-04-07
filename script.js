@@ -36,6 +36,7 @@ const scoreDrainStandard = 12;
 const scoreDrainShift = 7;
 const shiftStageBonus = 120;
 const moveIntervalMs = 46;
+const mobileMoveIntervalMs = 12;
 const preStartRevealRadius = 2.7;
 const leaderboardStorageKey = "maze-game-daily-leaderboard-v2";
 const leaderboardNameKey = "maze-game-daily-name-v2";
@@ -194,6 +195,10 @@ function scoreStart() {
 
 function scoreDrain() {
   return game.mode === "shift" ? scoreDrainShift : scoreDrainStandard;
+}
+
+function currentMoveInterval() {
+  return isMobileMode() ? mobileMoveIntervalMs : moveIntervalMs;
 }
 
 function createSeededRandom(seedText) {
@@ -685,7 +690,7 @@ function queueSwipe(direction) {
 
   if (game.moveCooldownMs === 0) {
     if (applyMove(delta.col, delta.row)) {
-      game.moveCooldownMs = moveIntervalMs;
+      game.moveCooldownMs = currentMoveInterval();
 
       if (shouldStopSwipe(direction)) {
         game.swipeDirection = null;
@@ -1209,12 +1214,12 @@ function gameFrame(timestamp) {
     if (!isMobileMode() && heldKeys.length > 0) {
       const direction = currentDirection();
       if (direction && applyMove(direction.col, direction.row)) {
-        game.moveCooldownMs = moveIntervalMs;
+        game.moveCooldownMs = currentMoveInterval();
       }
     } else if (isMobileMode() && game.swipeDirection) {
       const direction = directionDelta(game.swipeDirection);
       if (direction && applyMove(direction.col, direction.row)) {
-        game.moveCooldownMs = moveIntervalMs;
+        game.moveCooldownMs = currentMoveInterval();
 
         if (shouldStopSwipe(game.swipeDirection)) {
           game.swipeDirection = null;
@@ -1278,7 +1283,7 @@ function handleKeyDown(event) {
 
     if (game.moveCooldownMs === 0) {
       if (applyMove(currentDirection().col, currentDirection().row)) {
-        game.moveCooldownMs = moveIntervalMs;
+        game.moveCooldownMs = currentMoveInterval();
       }
     }
 
