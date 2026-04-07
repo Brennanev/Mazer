@@ -1308,6 +1308,8 @@ function handleTouchStart(event) {
     return;
   }
 
+  event.preventDefault();
+
   const touch = event.touches[0];
   if (!touch) {
     return;
@@ -1316,10 +1318,20 @@ function handleTouchStart(event) {
   game.touchStart = { x: touch.clientX, y: touch.clientY };
 }
 
+function handleTouchMove(event) {
+  if (!isMobileMode() || game.screen !== "game" || game.won) {
+    return;
+  }
+
+  event.preventDefault();
+}
+
 function handleTouchEnd(event) {
   if (!isMobileMode() || game.screen !== "game" || game.won || !game.touchStart) {
     return;
   }
+
+  event.preventDefault();
 
   const touch = event.changedTouches[0];
   if (!touch) {
@@ -1497,8 +1509,9 @@ leaderboardForm.addEventListener("submit", submitLeaderboard);
 
 window.addEventListener("keydown", handleKeyDown, { passive: false });
 window.addEventListener("keyup", handleKeyUp, { passive: false });
-canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
-canvas.addEventListener("touchend", handleTouchEnd, { passive: true });
+canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
+canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
+canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
 
 refreshLeaderboard();
 updateControlCopy();

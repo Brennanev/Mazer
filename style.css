@@ -283,6 +283,7 @@ canvas {
   height: auto;
   border-radius: 18px;
   background: #0a1016;
+  touch-action: none;
 }
 
 canvas:focus {
