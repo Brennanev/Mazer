@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maze Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="device-overlay" class="device-overlay">
+    <div class="device-card">
+      <p class="eyebrow">Choose Controls</p>
+      <h2>How are you playing?</h2>
+      <p class="copy">Pick the device style you want for this session.</p>
+      <div class="menu-actions">
+        <button id="pc-button" type="button">PC</button>
+        <button id="mobile-button" type="button">Mobile</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="app-shell">
+    <section id="menu-screen" class="menu-screen">
+      <div class="menu-card hero-card">
+        <p class="eyebrow">Arcade Maze</p>
+        <h1>Maze Game</h1>
+        <p id="intro-text" class="intro">
+          Pick a mode, then navigate the maze with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or the arrow keys.
+        </p>
+
+        <div class="menu-actions">
+          <button id="random-button" type="button">Random Maze</button>
+          <button id="daily-button" type="button">Daily Challenge</button>
+          <button id="shift-button" type="button">Shift Maze</button>
+        </div>
+      </div>
+
+      <div class="menu-card leaderboard-card">
+        <div class="leaderboard-header">
+          <div>
+            <p class="eyebrow small">Daily Ranking</p>
+            <h2>Today's Leaderboard</h2>
+          </div>
+          <button id="refresh-board-button" class="ghost-button" type="button">Refresh</button>
+        </div>
+
+        <p id="leaderboard-status" class="copy">Daily scores update here.</p>
+
+        <form id="leaderboard-form" class="leaderboard-form hidden" autocomplete="off">
+          <label for="leaderboard-name">Submit your daily score</label>
+          <div class="leaderboard-form-row">
+            <input id="leaderboard-name" type="text" maxlength="18" placeholder="Name">
+            <button id="leaderboard-submit" type="submit">Submit</button>
+          </div>
+        </form>
+
+        <ol id="leaderboard-list" class="leaderboard-list"></ol>
+      </div>
+    </section>
+
+    <section id="game-screen" class="game-screen hidden">
+      <header class="hud">
+        <div class="hud-item">
+          <span class="label">Mode</span>
+          <strong id="mode-text">Random</strong>
+        </div>
+        <div class="hud-item">
+          <span class="label">Score</span>
+          <strong id="score-text">1000</strong>
+        </div>
+        <div class="hud-item">
+          <span class="label">Best</span>
+          <strong id="best-text">0</strong>
+        </div>
+        <div class="hud-item hud-objective">
+          <span class="label">Objective</span>
+          <strong id="objective-text">Reach the goal</strong>
+        </div>
+        <div class="hud-actions">
+          <button id="menu-button" class="ghost-button" type="button">Menu</button>
+        </div>
+      </header>
+
+      <section class="stage">
+        <canvas id="game" width="840" height="840" tabindex="0" aria-label="Maze game"></canvas>
+
+        <div id="win-screen" class="win-screen hidden">
+          <div class="win-card">
+            <p class="eyebrow">Round Complete</p>
+            <h2 id="win-title">Maze Complete</h2>
+            <p id="win-score" class="copy">Final score: 0</p>
+            <p class="copy">Press Enter to play again, or choose a button below.</p>
+            <div class="menu-actions">
+              <button id="replay-button" type="button">Play Again</button>
+              <button id="win-menu-button" class="ghost-button" type="button">Back to Menu</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
