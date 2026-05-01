@@ -30,11 +30,6 @@ const leaderboardList = document.getElementById("leaderboard-list");
 const regularMazeSize = 37;
 const dailyMazeSize = 47;
 const shiftMazeSize = 37;
-const scoreStartStandard = 1000;
-const scoreStartShift = 1400;
-const scoreDrainStandard = 12;
-const scoreDrainShift = 7;
-const shiftStageBonus = 120;
 const moveIntervalMs = 46;
 const mobileMoveIntervalMs = 12;
 const preStartRevealRadius = 2.7;
@@ -53,7 +48,7 @@ const game = {
   player: { col: 1, row: 1 },
   goal: { col: 1, row: 1 },
   start: { col: 1, row: 1 },
-  score: scoreStartStandard,
+  score: 0,
   best: 0,
   won: false,
   hasStarted: false,
@@ -189,16 +184,18 @@ function tileSize() {
   return canvas.width / game.mazeSize;
 }
 
-function scoreStart() {
-  return game.mode === "shift" ? scoreStartShift : scoreStartStandard;
-}
-
-function scoreDrain() {
-  return game.mode === "shift" ? scoreDrainShift : scoreDrainStandard;
-}
-
 function currentMoveInterval() {
   return isMobileMode() ? mobileMoveIntervalMs : moveIntervalMs;
+}
+
+function formatRunTime(milliseconds) {
+  const safe = Math.max(0, Math.floor(milliseconds));
+  const totalTenths = Math.floor(safe / 100);
+  const minutes = Math.floor(totalTenths / 600);
+  const seconds = Math.floor((totalTenths % 600) / 10);
+  const tenths = totalTenths % 10;
+
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${tenths}`;
 }
 
 function createSeededRandom(seedText) {
@@ -566,7 +563,6 @@ function completeShiftAnimation() {
   game.maze = game.shift.returnMaze;
   game.goal = { ...game.start };
   game.trailPath = [{ col: game.player.col, row: game.player.row }];
-  game.score = Math.min(scoreStart() + shiftStageBonus, game.score + shiftStageBonus);
   game.moveCooldownMs = 0;
   game.shift.animation = {
     active: false,
@@ -749,7 +745,7 @@ function currentDirection() {
 function finishRun() {
   game.won = true;
 
-  if (game.score > game.best) {
+  if (game.best === 0 || game.score < game.best) {
     game.best = game.score;
     saveBest();
   }
@@ -759,7 +755,7 @@ function finishRun() {
   }
 
   winTitle.textContent = game.mode === "shift" ? "Shift Maze Complete" : "Maze Complete";
-  winScore.textContent = `Final score: ${game.score}`;
+  winScore.textContent = `Final time: ${formatRunTime(game.score)}`;
   winScreen.classList.remove("hidden");
   renderLeaderboard();
 }
@@ -837,7 +833,7 @@ function startMode(mode) {
     };
   }
 
-  game.score = scoreStart();
+  game.score = 0;
   game.best = loadBest();
   game.screen = "game";
   menuScreen.classList.add("hidden");
@@ -870,8 +866,8 @@ function updateHud() {
     "Random";
 
   modeText.textContent = modeLabel;
-  scoreText.textContent = String(game.score);
-  bestText.textContent = String(game.best);
+  scoreText.textContent = formatRunTime(game.score);
+  bestText.textContent = game.best > 0 ? formatRunTime(game.best) : "--:--.-";
 
   if (game.mode === "shift") {
     if (game.shift.animation.active) {
@@ -1197,7 +1193,7 @@ function updateScore(deltaTimeMs) {
   }
 
   game.elapsedMs += deltaTimeMs;
-  game.score = Math.max(0, scoreStart() - Math.floor((game.elapsedMs / 1000) * scoreDrain()));
+  game.score = game.elapsedMs;
 }
 
 function gameFrame(timestamp) {
@@ -1374,8 +1370,8 @@ function saveLeaderboardData(data) {
 
 function sortLeaderboard(entries) {
   return [...entries].sort((left, right) => {
-    if (right.score !== left.score) {
-      return right.score - left.score;
+    if (left.score !== right.score) {
+      return left.score - right.score;
     }
 
     return new Date(left.completedAt).getTime() - new Date(right.completedAt).getTime();
@@ -1420,7 +1416,7 @@ function renderLeaderboard() {
 
     const score = document.createElement("span");
     score.className = "leaderboard-score";
-    score.textContent = String(entry.score);
+    score.textContent = formatRunTime(entry.score);
 
     item.append(rank, textWrap, score);
     leaderboardList.appendChild(item);
@@ -1431,7 +1427,7 @@ function refreshLeaderboard() {
   const data = leaderboardData();
   game.leaderboardEntries = sortLeaderboard(data[game.dailyKey] || []).slice(0, leaderboardLimit);
   updateLeaderboardSubmissionState();
-  leaderboardStatus.textContent = "Daily challenge scores for today.";
+  leaderboardStatus.textContent = "Daily challenge times for today. Lowest time wins.";
   leaderboardName.value = readJson(leaderboardNameKey, { value: "" }).value || "";
   renderLeaderboard();
 }
